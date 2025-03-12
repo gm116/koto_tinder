@@ -136,17 +136,32 @@ class HomeScreenState extends State<HomeScreen> {
                           },
                         );
                       },
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(30),
-                        child:
-                            imageUrl.isNotEmpty
-                                ? Image.network(
-                                  imageUrl,
-                                  fit: BoxFit.cover,
-                                  width: 400,
-                                  height: 500,
-                                )
-                                : Container(color: Colors.grey),
+                      child: Container(
+                        width: 400,
+                        height: 500,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(30),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.5),
+                              spreadRadius: 2,
+                              blurRadius: 10,
+                              offset: Offset(0, 5),
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(30),
+                          child:
+                              imageUrl.isNotEmpty
+                                  ? Image.network(
+                                    imageUrl,
+                                    fit: BoxFit.cover,
+                                    width: 400,
+                                    height: 500,
+                                  )
+                                  : Container(color: Colors.grey),
+                        ),
                       ),
                     ),
                   ),
@@ -154,7 +169,14 @@ class HomeScreenState extends State<HomeScreen> {
                     SizedBox(
                       width: 400,
                       height: 500,
-                      child: Center(child: CircularProgressIndicator()),
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.green,
+                          ),
+                          strokeWidth: 6.0,
+                        ),
+                      ),
                     ),
                 ],
               ),
@@ -209,8 +231,8 @@ class LikeDislikeButtons extends StatefulWidget {
     required this.onLike,
     required this.onDislike,
     required this.isLoading,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   LikeDislikeButtonsState createState() => LikeDislikeButtonsState();
@@ -316,16 +338,9 @@ class LikeDislikeButtonsState extends State<LikeDislikeButtons>
                   ),
                 ),
               ),
-              Center(
-                child: FaIcon(
-                  icon,
-                  color: color,
-                  size: 32,
-                ),
-              ),
+              Center(child: FaIcon(icon, color: color, size: 32)),
             ],
           ),
-
         ),
       ),
     );
