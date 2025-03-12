@@ -115,27 +115,30 @@ class HomeScreenState extends State<HomeScreen> {
                       return false;
                     },
                     child: GestureDetector(
-                      onTap: () {
-                        Navigator.pushNamed(
-                          context,
-                          '/details',
-                          arguments: {
-                            'imageUrl': imageUrl,
-                            'breedName': breedName,
-                            'origin': origin,
-                            'temperament': temperament,
-                            'description': description,
-                            'lifeSpan': lifeSpan,
-                            'energyLevel': energyLevel,
-                            'intelligence': intelligence,
-                            'childFriendly': childFriendly,
-                            'dogFriendly': dogFriendly,
-                            'sheddingLevel': sheddingLevel,
-                            'hypoallergenic': hypoallergenic ? 1 : 0,
-                            'wikipediaUrl': wikipediaUrl,
-                          },
-                        );
-                      },
+                      onTap:
+                          isLoading
+                              ? null
+                              : () {
+                                Navigator.pushNamed(
+                                  context,
+                                  '/details',
+                                  arguments: {
+                                    'imageUrl': imageUrl,
+                                    'breedName': breedName,
+                                    'origin': origin,
+                                    'temperament': temperament,
+                                    'description': description,
+                                    'lifeSpan': lifeSpan,
+                                    'energyLevel': energyLevel,
+                                    'intelligence': intelligence,
+                                    'childFriendly': childFriendly,
+                                    'dogFriendly': dogFriendly,
+                                    'sheddingLevel': sheddingLevel,
+                                    'hypoallergenic': hypoallergenic ? 1 : 0,
+                                    'wikipediaUrl': wikipediaUrl,
+                                  },
+                                );
+                              },
                       child: Container(
                         width: 400,
                         height: 500,
