@@ -5,10 +5,10 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  HomeScreenState createState() => HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class HomeScreenState extends State<HomeScreen> {
   String imageUrl = '';
   String breedName = '';
   String origin = '';
@@ -38,8 +38,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
     try {
       var cat = await CatApi.fetchRandomCat();
+      String newImageUrl = cat['url'] ?? '';
+      if (mounted) {
+        await precacheImage(NetworkImage(newImageUrl), context);
+      }
       setState(() {
-        imageUrl = cat['url'] ?? '';
+        imageUrl = newImageUrl;
         breedName = cat['breedName'] ?? 'Неизвестная порода';
         origin = cat['origin'] ?? 'Неизвестно';
         temperament = cat['temperament'] ?? 'Нет данных';
@@ -93,76 +97,134 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                Container(
-                  width: 400,
-                  height: 400,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black, width: 1),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: isLoading
-                      ? Center(child: CircularProgressIndicator())
-                      : GestureDetector(
-                    onTap: () {
-                      Navigator.pushNamed(
-                        context,
-                        '/details',
-                        arguments: {
-                          'imageUrl': imageUrl,
-                          'breedName': breedName,
-                          'origin': origin,
-                          'temperament': temperament,
-                          'description': description,
-                          'lifeSpan': lifeSpan,
-                          'energyLevel': energyLevel,
-                          'intelligence': intelligence,
-                          'childFriendly': childFriendly,
-                          'dogFriendly': dogFriendly,
-                          'sheddingLevel': sheddingLevel,
-                          'hypoallergenic': hypoallergenic ? 1 : 0,
-                          'wikipediaUrl': wikipediaUrl,
-                        },
-                      );
+            SizedBox(
+              width: 400,
+              height: 500,
+              child: Stack(
+                children: [
+                  Dismissible(
+                    key: Key(imageUrl),
+                    direction: DismissDirection.horizontal,
+                    confirmDismiss: (direction) async {
+                      if (direction == DismissDirection.startToEnd) {
+                        _likeCat();
+                      } else if (direction == DismissDirection.endToStart) {
+                        _dislikeCat();
+                      }
+                      return false;
                     },
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: Image.network(
-                        imageUrl,
-                        fit: BoxFit.cover,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.pushNamed(
+                          context,
+                          '/details',
+                          arguments: {
+                            'imageUrl': imageUrl,
+                            'breedName': breedName,
+                            'origin': origin,
+                            'temperament': temperament,
+                            'description': description,
+                            'lifeSpan': lifeSpan,
+                            'energyLevel': energyLevel,
+                            'intelligence': intelligence,
+                            'childFriendly': childFriendly,
+                            'dogFriendly': dogFriendly,
+                            'sheddingLevel': sheddingLevel,
+                            'hypoallergenic': hypoallergenic ? 1 : 0,
+                            'wikipediaUrl': wikipediaUrl,
+                          },
+                        );
+                      },
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(30),
+                        child:
+                            imageUrl.isNotEmpty
+                                ? Image.network(
+                                  imageUrl,
+                                  fit: BoxFit.cover,
+                                  width: 400,
+                                  height: 500,
+                                )
+                                : Container(color: Colors.grey),
                       ),
                     ),
                   ),
-                ),
-              ],
+                  if (isLoading)
+                    SizedBox(
+                      width: 400,
+                      height: 500,
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                ],
+              ),
             ),
             SizedBox(height: 20),
-            Text(
-              breedName,
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            Text('Лайков: $likeCount', style: TextStyle(fontSize: 18)),
-            SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.thumb_down, color: Colors.red, size: 40),
-                  onPressed: isLoading ? null : _dislikeCat,
-                ),
-                SizedBox(width: 20),
-                IconButton(
-                  icon: Icon(Icons.thumb_up, color: Colors.green, size: 40),
-                  onPressed: isLoading ? null : _likeCat,
-                ),
-              ],
+            _BreedText(breedName: breedName),
+            _LikeCountText(likeCount: likeCount),
+            SizedBox(height: 40),
+            _LikeDislikeButtons(
+              onLike: _likeCat,
+              onDislike: _dislikeCat,
+              isLoading: isLoading,
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _BreedText extends StatelessWidget {
+  final String breedName;
+
+  const _BreedText({required this.breedName});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      breedName,
+      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+    );
+  }
+}
+
+class _LikeCountText extends StatelessWidget {
+  final int likeCount;
+
+  const _LikeCountText({required this.likeCount});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text('Лайков: $likeCount', style: TextStyle(fontSize: 18));
+  }
+}
+
+class _LikeDislikeButtons extends StatelessWidget {
+  final VoidCallback onLike;
+  final VoidCallback onDislike;
+  final bool isLoading;
+
+  const _LikeDislikeButtons({
+    required this.onLike,
+    required this.onDislike,
+    required this.isLoading,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        IconButton(
+          icon: Icon(Icons.thumb_down, color: Colors.red, size: 40),
+          onPressed: isLoading ? null : onDislike,
+        ),
+        SizedBox(width: 80),
+        IconButton(
+          icon: Icon(Icons.thumb_up, color: Colors.green, size: 40),
+          onPressed: isLoading ? null : onLike,
+        ),
+      ],
     );
   }
 }
