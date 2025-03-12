@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:translator/translator.dart';
 
 class CatApi {
   static const String _searchUrl =
@@ -20,17 +21,22 @@ class CatApi {
         if (detailsResponse.statusCode == 200) {
           var detailsData = json.decode(detailsResponse.body);
           var breed =
-              (detailsData['breeds'] != null &&
-                      detailsData['breeds'].isNotEmpty)
-                  ? detailsData['breeds'][0]
-                  : null;
+          (detailsData['breeds'] != null && detailsData['breeds'].isNotEmpty)
+              ? detailsData['breeds'][0]
+              : null;
+
+          final translator = GoogleTranslator();
+          var translatedBreedName = await translator.translate(breed?['name'] ?? 'Unknown', to: 'ru');
+          var translatedOrigin = await translator.translate(breed?['origin'] ?? 'Unknown', to: 'ru');
+          var translatedTemperament = await translator.translate(breed?['temperament'] ?? 'Unknown', to: 'ru');
+          var translatedDescription = await translator.translate(breed?['description'] ?? 'No description available', to: 'ru');
 
           return {
             'url': imageUrl,
-            'breedName': breed?['name'] ?? 'Неизвестная порода',
-            'origin': breed?['origin'] ?? 'Неизвестно',
-            'temperament': breed?['temperament'] ?? 'Нет данных',
-            'description': breed?['description'] ?? 'Описание отсутствует',
+            'breedName': translatedBreedName.text,
+            'origin': translatedOrigin.text,
+            'temperament': translatedTemperament.text,
+            'description': translatedDescription.text,
             'lifeSpan': breed?['life_span'] ?? 'Неизвестно',
             'energyLevel': breed?['energy_level'] ?? 0,
             'intelligence': breed?['intelligence'] ?? 0,
@@ -43,6 +49,6 @@ class CatApi {
         }
       }
     }
-    throw Exception('Failed to load cat');
+    throw Exception('Ошибка загрузки данных');
   }
 }
