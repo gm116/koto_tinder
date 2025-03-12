@@ -93,7 +93,16 @@ class HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Кототиндер')),
+      appBar: AppBar(
+        title: Text(
+          'Кототиндер',
+          style: TextStyle(
+            fontSize: 28,
+            fontFamily: 'Montserrat',
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -209,7 +218,11 @@ class _BreedText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       breedName,
-      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+      style: TextStyle(
+        fontSize: 24,
+        fontWeight: FontWeight.bold,
+        fontFamily: 'Montserrat',
+      ),
     );
   }
 }
@@ -221,7 +234,10 @@ class _LikeCountText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text('Лайков: $likeCount', style: TextStyle(fontSize: 18));
+    return Text(
+      'Лайков: $likeCount',
+      style: TextStyle(fontSize: 18, fontFamily: 'Montserrat'),
+    );
   }
 }
 
