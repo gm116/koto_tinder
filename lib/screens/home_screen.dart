@@ -23,6 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int sheddingLevel = 0;
   bool hypoallergenic = false;
   String wikipediaUrl = '';
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -31,6 +32,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _loadNewCat() async {
+    setState(() {
+      isLoading = true;
+    });
+
     try {
       var cat = await CatApi.fetchRandomCat();
       setState(() {
@@ -47,6 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
         sheddingLevel = cat['sheddingLevel'] ?? 0;
         hypoallergenic = cat['hypoallergenic'] ?? false;
         wikipediaUrl = cat['wikipediaUrl'] ?? '';
+        isLoading = false;
       });
     } catch (e) {
       setState(() {
@@ -63,6 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
         sheddingLevel = 0;
         hypoallergenic = false;
         wikipediaUrl = '';
+        isLoading = false;
       });
     }
   }
@@ -85,8 +92,9 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          imageUrl.isNotEmpty
-              ? GestureDetector(
+          isLoading
+              ? CircularProgressIndicator()
+              : GestureDetector(
                 onTap: () {
                   Navigator.pushNamed(
                     context,
@@ -109,8 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 },
                 child: Image.network(imageUrl, height: 300),
-              )
-              : CircularProgressIndicator(),
+              ),
           SizedBox(height: 20),
           Text(
             breedName,
@@ -124,12 +131,12 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               IconButton(
                 icon: Icon(Icons.thumb_down, color: Colors.red, size: 40),
-                onPressed: _dislikeCat,
+                onPressed: isLoading ? null : _dislikeCat,
               ),
               SizedBox(width: 20),
               IconButton(
                 icon: Icon(Icons.thumb_up, color: Colors.green, size: 40),
-                onPressed: _likeCat,
+                onPressed: isLoading ? null : _likeCat,
               ),
             ],
           ),
