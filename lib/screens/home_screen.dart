@@ -89,58 +89,79 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Кототиндер')),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          isLoading
-              ? CircularProgressIndicator()
-              : GestureDetector(
-                onTap: () {
-                  Navigator.pushNamed(
-                    context,
-                    '/details',
-                    arguments: {
-                      'imageUrl': imageUrl,
-                      'breedName': breedName,
-                      'origin': origin,
-                      'temperament': temperament,
-                      'description': description,
-                      'lifeSpan': lifeSpan,
-                      'energyLevel': energyLevel,
-                      'intelligence': intelligence,
-                      'childFriendly': childFriendly,
-                      'dogFriendly': dogFriendly,
-                      'sheddingLevel': sheddingLevel,
-                      'hypoallergenic': hypoallergenic ? 1 : 0,
-                      'wikipediaUrl': wikipediaUrl,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                Container(
+                  width: 400,
+                  height: 400,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black, width: 1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: isLoading
+                      ? Center(child: CircularProgressIndicator())
+                      : GestureDetector(
+                    onTap: () {
+                      Navigator.pushNamed(
+                        context,
+                        '/details',
+                        arguments: {
+                          'imageUrl': imageUrl,
+                          'breedName': breedName,
+                          'origin': origin,
+                          'temperament': temperament,
+                          'description': description,
+                          'lifeSpan': lifeSpan,
+                          'energyLevel': energyLevel,
+                          'intelligence': intelligence,
+                          'childFriendly': childFriendly,
+                          'dogFriendly': dogFriendly,
+                          'sheddingLevel': sheddingLevel,
+                          'hypoallergenic': hypoallergenic ? 1 : 0,
+                          'wikipediaUrl': wikipediaUrl,
+                        },
+                      );
                     },
-                  );
-                },
-                child: Image.network(imageUrl, height: 300),
-              ),
-          SizedBox(height: 20),
-          Text(
-            breedName,
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 20),
-          Text('Лайков: $likeCount', style: TextStyle(fontSize: 18)),
-          SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              IconButton(
-                icon: Icon(Icons.thumb_down, color: Colors.red, size: 40),
-                onPressed: isLoading ? null : _dislikeCat,
-              ),
-              SizedBox(width: 20),
-              IconButton(
-                icon: Icon(Icons.thumb_up, color: Colors.green, size: 40),
-                onPressed: isLoading ? null : _likeCat,
-              ),
-            ],
-          ),
-        ],
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Image.network(
+                        imageUrl,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 20),
+            Text(
+              breedName,
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 10),
+            Text('Лайков: $likeCount', style: TextStyle(fontSize: 18)),
+            SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.thumb_down, color: Colors.red, size: 40),
+                  onPressed: isLoading ? null : _dislikeCat,
+                ),
+                SizedBox(width: 20),
+                IconButton(
+                  icon: Icon(Icons.thumb_up, color: Colors.green, size: 40),
+                  onPressed: isLoading ? null : _likeCat,
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
