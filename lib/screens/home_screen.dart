@@ -10,88 +10,83 @@ class HomeScreen extends StatefulWidget {
 }
 
 class HomeScreenState extends State<HomeScreen> {
-  String imageUrl = '';
-  String breedName = '';
-  String origin = '';
-  String temperament = '';
-  String description = '';
-  String lifeSpan = '';
+  final List<Map<String, dynamic>> _catQueue = [];
   int likeCount = 0;
-  int energyLevel = 0;
-  int intelligence = 0;
-  int childFriendly = 0;
-  int dogFriendly = 0;
-  int sheddingLevel = 0;
-  bool hypoallergenic = false;
-  String wikipediaUrl = '';
   bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadNewCat();
+    _initializeQueue();
   }
 
-  Future<void> _loadNewCat() async {
+  Future<void> _initializeQueue() async {
+    List<Future> futures = [];
+    for (int i = 0; i < 10; i++) {
+      futures.add(_addCatToQueue());
+    }
+    await Future.wait(futures);
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  Future<void> _addCatToQueue() async {
     setState(() {
       isLoading = true;
     });
-
     try {
       var cat = await CatApi.fetchRandomCat();
       String newImageUrl = cat['url'] ?? '';
-      if (mounted) {
+      if (mounted && newImageUrl.isNotEmpty) {
         await precacheImage(NetworkImage(newImageUrl), context);
       }
       setState(() {
-        imageUrl = newImageUrl;
-        breedName = cat['breedName'] ?? 'Неизвестная порода';
-        origin = cat['origin'] ?? 'Неизвестно';
-        temperament = cat['temperament'] ?? 'Нет данных';
-        description = cat['description'] ?? 'Описание отсутствует';
-        lifeSpan = cat['lifeSpan'] ?? 'Неизвестно';
-        energyLevel = cat['energyLevel'] ?? 0;
-        intelligence = cat['intelligence'] ?? 0;
-        childFriendly = cat['childFriendly'] ?? 0;
-        dogFriendly = cat['dogFriendly'] ?? 0;
-        sheddingLevel = cat['sheddingLevel'] ?? 0;
-        hypoallergenic = cat['hypoallergenic'] ?? false;
-        wikipediaUrl = cat['wikipediaUrl'] ?? '';
+        _catQueue.add(cat);
         isLoading = false;
       });
     } catch (e) {
       setState(() {
-        imageUrl = '';
-        breedName = 'Ошибка загрузки';
-        origin = 'Неизвестно';
-        temperament = 'Нет данных';
-        description = 'Описание отсутствует';
-        lifeSpan = 'Неизвестно';
-        energyLevel = 0;
-        intelligence = 0;
-        childFriendly = 0;
-        dogFriendly = 0;
-        sheddingLevel = 0;
-        hypoallergenic = false;
-        wikipediaUrl = '';
         isLoading = false;
       });
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Ошибка загрузки кота')));
     }
   }
 
   void _likeCat() {
     setState(() {
       likeCount++;
+      if (_catQueue.isNotEmpty) {
+        _catQueue.removeAt(0);
+      }
     });
-    _loadNewCat();
+
+    if (_catQueue.length <= 1) {
+      _initializeQueue();
+    }
   }
 
   void _dislikeCat() {
-    _loadNewCat();
+    setState(() {
+      if (_catQueue.isNotEmpty) {
+        _catQueue.removeAt(0);
+      }
+    });
+    if (_catQueue.length <= 1) {
+      _initializeQueue();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    Map<String, dynamic>? currentCat =
+        _catQueue.isNotEmpty ? _catQueue.first : null;
+
+    String imageUrl = currentCat?['url'] ?? '';
+    String breedName = currentCat?['breedName'] ?? 'Загрузка...';
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -113,8 +108,11 @@ class HomeScreenState extends State<HomeScreen> {
               child: Stack(
                 children: [
                   Dismissible(
-                    key: Key(imageUrl),
-                    direction: DismissDirection.horizontal,
+                    key: Key(imageUrl.isNotEmpty ? imageUrl : 'empty'),
+                    direction:
+                        isLoading
+                            ? DismissDirection.none
+                            : DismissDirection.horizontal,
                     confirmDismiss: (direction) async {
                       if (direction == DismissDirection.startToEnd) {
                         _likeCat();
@@ -131,21 +129,7 @@ class HomeScreenState extends State<HomeScreen> {
                                 Navigator.pushNamed(
                                   context,
                                   '/details',
-                                  arguments: {
-                                    'imageUrl': imageUrl,
-                                    'breedName': breedName,
-                                    'origin': origin,
-                                    'temperament': temperament,
-                                    'description': description,
-                                    'lifeSpan': lifeSpan,
-                                    'energyLevel': energyLevel,
-                                    'intelligence': intelligence,
-                                    'childFriendly': childFriendly,
-                                    'dogFriendly': dogFriendly,
-                                    'sheddingLevel': sheddingLevel,
-                                    'hypoallergenic': hypoallergenic ? 1 : 0,
-                                    'wikipediaUrl': wikipediaUrl,
-                                  },
+                                  arguments: currentCat,
                                 );
                               },
                       child: Container(
@@ -177,16 +161,16 @@ class HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                  if (isLoading)
+                  if (isLoading || currentCat == null)
                     SizedBox(
                       width: 400,
                       height: 500,
                       child: Center(
                         child: CircularProgressIndicator(
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.green,
+                            Colors.grey,
                           ),
-                          strokeWidth: 6.0,
+                          strokeWidth: 5.0,
                         ),
                       ),
                     ),

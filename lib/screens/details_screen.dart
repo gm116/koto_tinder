@@ -7,7 +7,7 @@ class DetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final Map<String, dynamic>? args =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-    final String imageUrl = args?['imageUrl'] ?? '';
+    final String imageUrl = args?['url'] ?? '';
     final String breedName = args?['breedName'] ?? 'Unknown';
     final String origin = args?['origin'] ?? 'Unknown';
     final String temperament = args?['temperament'] ?? 'Unknown';
@@ -71,7 +71,7 @@ class DetailsScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   _buildInfoText(
-                    'Страна: $origin',
+                    'Происхождение: $origin',
                     fontSize: 18,
                     isBold: true,
                     textAlign: TextAlign.center,
@@ -136,7 +136,6 @@ class DetailsScreen extends StatelessWidget {
       ),
     );
   }
-
 
   Widget _buildInfoText(
     String text, {

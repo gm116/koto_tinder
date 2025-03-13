@@ -21,15 +21,32 @@ class CatApi {
         if (detailsResponse.statusCode == 200) {
           var detailsData = json.decode(detailsResponse.body);
           var breed =
-          (detailsData['breeds'] != null && detailsData['breeds'].isNotEmpty)
-              ? detailsData['breeds'][0]
-              : null;
+              (detailsData['breeds'] != null &&
+                      detailsData['breeds'].isNotEmpty)
+                  ? detailsData['breeds'][0]
+                  : null;
 
           final translator = GoogleTranslator();
-          var translatedBreedName = await translator.translate(breed?['name'] ?? 'Unknown', to: 'ru');
-          var translatedOrigin = await translator.translate(breed?['origin'] ?? 'Unknown', to: 'ru');
-          var translatedTemperament = await translator.translate(breed?['temperament'] ?? 'Unknown', to: 'ru');
-          var translatedDescription = await translator.translate(breed?['description'] ?? 'No description available', to: 'ru');
+          var translatedBreedName = await translator.translate(
+            breed?['name'] ?? 'Unknown',
+            from: 'en',
+            to: 'ru',
+          );
+          var translatedOrigin = await translator.translate(
+            breed?['origin'] ?? 'Unknown',
+            from: 'en',
+            to: 'ru',
+          );
+          var translatedTemperament = await translator.translate(
+            breed?['temperament'] ?? 'Unknown',
+            from: 'en',
+            to: 'ru',
+          );
+          var translatedDescription = await translator.translate(
+            breed?['description'] ?? 'No description available',
+            from: 'en',
+            to: 'ru',
+          );
 
           return {
             'url': imageUrl,
@@ -44,7 +61,6 @@ class CatApi {
             'dogFriendly': breed?['dog_friendly'] ?? 0,
             'sheddingLevel': breed?['shedding_level'] ?? 0,
             'hypoallergenic': breed?['hypoallergenic'] == 1,
-            'wikipediaUrl': breed?['wikipedia_url'] ?? '',
           };
         }
       }
