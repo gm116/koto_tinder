@@ -21,41 +21,123 @@ class DetailsScreen extends StatelessWidget {
     final int sheddingLevel = args?['sheddingLevel'] ?? 0;
     final bool hypoallergenic = args?['hypoallergenic'] == 1;
 
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 350,
-            pinned: true,
-            flexibleSpace: FlexibleSpaceBar(
-              background: Hero(
-                tag: imageUrl,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    imageUrl.isNotEmpty
-                        ? Image.network(imageUrl, fit: BoxFit.cover)
-                        : Container(color: Colors.grey),
-                    Positioned(
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      child: Container(
-                        height: 40,
-                        color: Colors.black.withValues(alpha: 0.4),
+    return GestureDetector(
+      onHorizontalDragEnd: (details) {
+        if (details.primaryVelocity == null) return;
+        double velocity = details.primaryVelocity!;
+        if (velocity > 500) {
+          Navigator.pop(context);
+        }
+      },
+      child: Scaffold(
+        body: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              expandedHeight: 350,
+              pinned: true,
+              flexibleSpace: FlexibleSpaceBar(
+                background: Hero(
+                  tag: imageUrl,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      imageUrl.isNotEmpty
+                          ? Image.network(imageUrl, fit: BoxFit.cover)
+                          : Container(color: Colors.grey),
+                      Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                          height: 40,
+                          color: Colors.black.withValues(alpha: 0.4),
+                        ),
                       ),
-                    ),
-                    Positioned(
-                      child: Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Text(
-                          breedName,
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontFamily: 'Montserrat',
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                      Positioned(
+                        child: Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Text(
+                            breedName,
+                            style: TextStyle(
+                              fontSize: 28,
+                              fontFamily: 'Montserrat',
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _buildInfoText(
+                      'Происхождение: $origin',
+                      fontSize: 18,
+                      isBold: true,
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 10),
+                    _buildInfoText(
+                      'Продолжительность жизни: $lifeSpan лет',
+                      textAlign: TextAlign.justify,
+                    ),
+                    SizedBox(height: 10),
+                    _buildInfoText(
+                      'Характер: $temperament',
+                      textAlign: TextAlign.justify,
+                    ),
+                    SizedBox(height: 10),
+                    _buildInfoText(
+                      'Описание: $description',
+                      textAlign: TextAlign.justify,
+                    ),
+                    SizedBox(height: 20),
+                    Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      margin: EdgeInsets.symmetric(vertical: 8),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            _buildSectionTitle(
+                              'Дополнительные характеристики:',
+                            ),
+                            SizedBox(height: 10),
+                            _buildCharacteristic('Энергичность', energyLevel),
+                            _buildCharacteristic('Интеллект', intelligence),
+                            _buildCharacteristic(
+                              'Дружелюбность к детям',
+                              childFriendly,
+                            ),
+                            _buildCharacteristic(
+                              'Дружелюбность к собакам',
+                              dogFriendly,
+                            ),
+                            _buildCharacteristic(
+                              'Уровень линьки',
+                              sheddingLevel,
+                            ),
+                            SizedBox(height: 10),
+                            _buildInfoText(
+                              hypoallergenic
+                                  ? '✅ Гипоаллергенный'
+                                  : '❌ Не гипоаллергенный',
+                              isBold: true,
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -63,76 +145,8 @@ class DetailsScreen extends StatelessWidget {
                 ),
               ),
             ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _buildInfoText(
-                    'Происхождение: $origin',
-                    fontSize: 18,
-                    isBold: true,
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: 10),
-                  _buildInfoText(
-                    'Продолжительность жизни: $lifeSpan лет',
-                    textAlign: TextAlign.justify,
-                  ),
-                  SizedBox(height: 10),
-                  _buildInfoText(
-                    'Характер: $temperament',
-                    textAlign: TextAlign.justify,
-                  ),
-                  SizedBox(height: 10),
-                  _buildInfoText(
-                    'Описание: $description',
-                    textAlign: TextAlign.justify,
-                  ),
-                  SizedBox(height: 20),
-                  Card(
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    margin: EdgeInsets.symmetric(vertical: 8),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          _buildSectionTitle('Дополнительные характеристики:'),
-                          SizedBox(height: 10),
-                          _buildCharacteristic('Энергичность', energyLevel),
-                          _buildCharacteristic('Интеллект', intelligence),
-                          _buildCharacteristic(
-                            'Дружелюбность к детям',
-                            childFriendly,
-                          ),
-                          _buildCharacteristic(
-                            'Дружелюбность к собакам',
-                            dogFriendly,
-                          ),
-                          _buildCharacteristic('Уровень линьки', sheddingLevel),
-                          SizedBox(height: 10),
-                          _buildInfoText(
-                            hypoallergenic
-                                ? '✅ Гипоаллергенный'
-                                : '❌ Не гипоаллергенный',
-                            isBold: true,
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
