@@ -156,7 +156,7 @@ class HomeScreenState extends State<HomeScreen> {
                                     width: 400,
                                     height: 500,
                                   )
-                                  : Container(color: Colors.grey),
+                                  : null,
                         ),
                       ),
                     ),
