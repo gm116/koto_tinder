@@ -1,27 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:translator/translator.dart';
+import '../models/cat.dart';
 
 class DetailsScreen extends StatelessWidget {
   const DetailsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, dynamic>? args =
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-    final String imageUrl = args?['url'] ?? '';
-    final String breedName = args?['breedName'] ?? 'Unknown';
-    final String origin = args?['origin'] ?? 'Unknown';
-    final String temperament = args?['temperament'] ?? 'Unknown';
-    final String description =
-        args?['description'] ?? 'No description available';
-    final String lifeSpan = args?['lifeSpan'] ?? 'Unknown';
-    final int energyLevel = args?['energyLevel'] ?? 0;
-    final int intelligence = args?['intelligence'] ?? 0;
-    final int childFriendly = args?['childFriendly'] ?? 0;
-    final int dogFriendly = args?['dogFriendly'] ?? 0;
-    final int sheddingLevel = args?['sheddingLevel'] ?? 0;
-    final bool hypoallergenic = args?['hypoallergenic'] == 1;
+    final Cat? cat = ModalRoute.of(context)?.settings.arguments as Cat?;
+    if (cat == null) {
+      return Scaffold(body: Center(child: Text('Cat not found')));
+    }
 
     return GestureDetector(
       onHorizontalDragEnd: (details) {
@@ -39,12 +29,12 @@ class DetailsScreen extends StatelessWidget {
               pinned: true,
               flexibleSpace: FlexibleSpaceBar(
                 background: Hero(
-                  tag: imageUrl,
+                  tag: cat.url,
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      imageUrl.isNotEmpty
-                          ? Image.network(imageUrl, fit: BoxFit.cover)
+                      cat.url.isNotEmpty
+                          ? Image.network(cat.url, fit: BoxFit.cover)
                           : Container(color: Colors.grey),
                       Positioned(
                         bottom: 0,
@@ -59,8 +49,8 @@ class DetailsScreen extends StatelessWidget {
                         child: Align(
                           alignment: Alignment.bottomCenter,
                           child: Text(
-                            breedName,
-                            style: TextStyle(
+                            cat.breedName,
+                            style: const TextStyle(
                               fontSize: 28,
                               fontFamily: 'Montserrat',
                               fontWeight: FontWeight.bold,
@@ -81,23 +71,27 @@ class DetailsScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     _buildInfoText(
-                      '${AppLocalizations.of(context).origin}: $origin',
+                      '${AppLocalizations.of(context).origin}: ${cat.origin}',
                       fontSize: 18,
                       isBold: true,
                       textAlign: TextAlign.center,
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     _buildInfoText(
-                      '${AppLocalizations.of(context).lifeSpan}: $lifeSpan ${Localizations.localeOf(context).languageCode == 'ru' ? 'лет' : 'years'}',
+                      '${AppLocalizations.of(context).lifeSpan}: ${cat.lifeSpan} ${Localizations.localeOf(context).languageCode == 'ru' ? 'лет' : 'years'}',
                       textAlign: TextAlign.justify,
                     ),
                     FutureBuilder<String>(
                       future:
                           Localizations.localeOf(context).languageCode == 'ru'
                               ? GoogleTranslator()
-                                  .translate(temperament, from: 'en', to: 'ru')
+                                  .translate(
+                                    cat.temperament,
+                                    from: 'en',
+                                    to: 'ru',
+                                  )
                                   .then((result) => result.text)
-                              : Future.value(temperament),
+                              : Future.value(cat.temperament),
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
@@ -107,7 +101,7 @@ class DetailsScreen extends StatelessWidget {
                           );
                         } else if (snapshot.hasError) {
                           return _buildInfoText(
-                            '${AppLocalizations.of(context).temperament}: $temperament',
+                            '${AppLocalizations.of(context).temperament}: ${cat.temperament}',
                             textAlign: TextAlign.justify,
                           );
                         } else {
@@ -122,9 +116,13 @@ class DetailsScreen extends StatelessWidget {
                       future:
                           Localizations.localeOf(context).languageCode == 'ru'
                               ? GoogleTranslator()
-                                  .translate(description, from: 'en', to: 'ru')
+                                  .translate(
+                                    cat.description,
+                                    from: 'en',
+                                    to: 'ru',
+                                  )
                                   .then((result) => result.text)
-                              : Future.value(description),
+                              : Future.value(cat.description),
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
@@ -134,7 +132,7 @@ class DetailsScreen extends StatelessWidget {
                           );
                         } else if (snapshot.hasError) {
                           return _buildInfoText(
-                            '${AppLocalizations.of(context).description}: $description',
+                            '${AppLocalizations.of(context).description}: ${cat.description}',
                             textAlign: TextAlign.justify,
                           );
                         } else {
@@ -145,13 +143,13 @@ class DetailsScreen extends StatelessWidget {
                         }
                       },
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     Card(
                       elevation: 4,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      margin: EdgeInsets.symmetric(vertical: 8),
+                      margin: const EdgeInsets.symmetric(vertical: 8),
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
@@ -162,30 +160,30 @@ class DetailsScreen extends StatelessWidget {
                                 context,
                               ).additionalCharacteristics,
                             ),
-                            SizedBox(height: 10),
+                            const SizedBox(height: 10),
                             _buildCharacteristic(
                               AppLocalizations.of(context).energy,
-                              energyLevel,
+                              cat.energyLevel,
                             ),
                             _buildCharacteristic(
                               AppLocalizations.of(context).intelligence,
-                              intelligence,
+                              cat.intelligence,
                             ),
                             _buildCharacteristic(
                               AppLocalizations.of(context).childFriendly,
-                              childFriendly,
+                              cat.childFriendly,
                             ),
                             _buildCharacteristic(
                               AppLocalizations.of(context).dogFriendly,
-                              dogFriendly,
+                              cat.dogFriendly,
                             ),
                             _buildCharacteristic(
                               AppLocalizations.of(context).sheddingLevel,
-                              sheddingLevel,
+                              cat.sheddingLevel,
                             ),
-                            SizedBox(height: 10),
+                            const SizedBox(height: 10),
                             _buildInfoText(
-                              hypoallergenic
+                              cat.hypoallergenic
                                   ? AppLocalizations.of(
                                     context,
                                   ).hypoallergenicYes
@@ -229,7 +227,7 @@ class DetailsScreen extends StatelessWidget {
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
-      style: TextStyle(
+      style: const TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.bold,
         fontFamily: 'Montserrat',
@@ -245,7 +243,7 @@ class DetailsScreen extends StatelessWidget {
         children: [
           Text(
             '$title: ',
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
               fontFamily: 'Montserrat',
@@ -254,7 +252,7 @@ class DetailsScreen extends StatelessWidget {
           Row(
             children: List.generate(
               level,
-              (index) => Icon(Icons.star, color: Colors.amber, size: 20),
+              (index) => const Icon(Icons.star, color: Colors.amber, size: 20),
             ),
           ),
         ],

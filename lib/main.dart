@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'screens/home_screen.dart';
 import 'screens/details_screen.dart';
+import 'screens/liked_cats_screen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'di/di.dart';
 
 void main() {
+  initDI();
   runApp(const MyApp());
 }
 
@@ -42,6 +45,7 @@ class _MyAppState extends State<MyApp> {
       routes: {
         '/': (context) => HomeScreen(onLocaleChange: _setLocale),
         '/details': (context) => DetailsScreen(),
+        '/liked': (context) => const LikedCatsScreen(), // Новый экран
       },
     );
   }
