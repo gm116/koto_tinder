@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:translator/translator.dart';
 import '../services/cat_api.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({super.key, required this.onLocaleChange});
+  final Function(Locale) onLocaleChange;
 
   @override
   HomeScreenState createState() => HomeScreenState();
@@ -50,9 +53,9 @@ class HomeScreenState extends State<HomeScreen> {
         setState(() {
           isLoading = false;
         });
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Ошибка загрузки кота')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context).errorLoadingCat)),
+        );
       }
     }
   }
@@ -87,18 +90,32 @@ class HomeScreenState extends State<HomeScreen> {
         _catQueue.isNotEmpty ? _catQueue.first : null;
 
     String imageUrl = currentCat?['url'] ?? '';
-    String breedName = currentCat?['breedName'] ?? 'Загрузка...';
+    String breedName =
+        currentCat?['breedName'] ?? AppLocalizations.of(context).loading;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Кототиндер',
-          style: TextStyle(
+          AppLocalizations.of(context).appTitle,
+          style: const TextStyle(
             fontSize: 28,
             fontFamily: 'Montserrat',
             fontWeight: FontWeight.bold,
           ),
         ),
+        actions: [
+          PopupMenuButton<Locale>(
+            onSelected: (locale) {
+              widget.onLocaleChange(locale);
+            },
+            itemBuilder:
+                (context) => const [
+                  PopupMenuItem(value: Locale('ru'), child: Text('🇷🇺RU')),
+                  PopupMenuItem(value: Locale('en'), child: Text('🇺🇸EN')),
+                ],
+            icon: Icon(Icons.language),
+          ),
+        ],
       ),
       body: Center(
         child: Column(
@@ -198,17 +215,57 @@ class HomeScreenState extends State<HomeScreen> {
 class _BreedText extends StatelessWidget {
   final String breedName;
 
-  const _BreedText({required this.breedName});
+  const _BreedText({required this.breedName, super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      breedName,
-      style: TextStyle(
-        fontSize: 24,
-        fontWeight: FontWeight.bold,
-        fontFamily: 'Montserrat',
-      ),
+    final String languageCode = Localizations.localeOf(context).languageCode;
+
+    if (languageCode != 'ru') {
+      return Text(
+        breedName,
+        style: const TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+          fontFamily: 'Montserrat',
+        ),
+      );
+    }
+
+    return FutureBuilder<String>(
+      future: GoogleTranslator()
+          .translate(breedName, from: 'en', to: 'ru')
+          .then((result) => result.text),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Text(
+            'Загрузка...',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Montserrat',
+            ),
+          );
+        } else if (snapshot.hasError) {
+          return Text(
+            breedName,
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Montserrat',
+            ),
+          );
+        } else {
+          return Text(
+            snapshot.data ?? breedName,
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Montserrat',
+            ),
+          );
+        }
+      },
     );
   }
 }
@@ -221,7 +278,7 @@ class _LikeCountText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      'Лайков: $likeCount',
+      '${AppLocalizations.of(context).likesCount}$likeCount',
       style: TextStyle(fontSize: 18, fontFamily: 'Montserrat'),
     );
   }

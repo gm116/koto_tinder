@@ -1,0 +1,21 @@
+{
+  "@@locale": "en",
+  "appTitle": "Cat Tinder",
+  "origin": "Origin",
+  "lifeSpan": "Life Span",
+  "temperament": "Temperament",
+  "description": "Description",
+  "additionalCharacteristics": "Additional Characteristics:",
+  "energy": "Energy",
+  "intelligence": "Intelligence",
+  "childFriendly": "Child Friendly",
+  "dogFriendly": "Dog Friendly",
+  "sheddingLevel": "Shedding Level",
+  "hypoallergenicYes": "✅ Hypoallergenic",
+  "hypoallergenicNo": "❌ Not Hypoallergenic",
+  "like": "Like",
+  "dislike": "Dislike",
+  "likesCount": "Likes: ",
+  "loading": "Loading...",
+  "errorLoadingCat": "Error loading cat"
+}

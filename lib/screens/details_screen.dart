@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:translator/translator.dart';
 
 class DetailsScreen extends StatelessWidget {
   const DetailsScreen({super.key});
@@ -79,25 +81,69 @@ class DetailsScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     _buildInfoText(
-                      'Происхождение: $origin',
+                      '${AppLocalizations.of(context).origin}: $origin',
                       fontSize: 18,
                       isBold: true,
                       textAlign: TextAlign.center,
                     ),
                     SizedBox(height: 10),
                     _buildInfoText(
-                      'Продолжительность жизни: $lifeSpan лет',
+                      '${AppLocalizations.of(context).lifeSpan}: $lifeSpan ${Localizations.localeOf(context).languageCode == 'ru' ? 'лет' : 'years'}',
                       textAlign: TextAlign.justify,
                     ),
-                    SizedBox(height: 10),
-                    _buildInfoText(
-                      'Характер: $temperament',
-                      textAlign: TextAlign.justify,
+                    FutureBuilder<String>(
+                      future:
+                          Localizations.localeOf(context).languageCode == 'ru'
+                              ? GoogleTranslator()
+                                  .translate(temperament, from: 'en', to: 'ru')
+                                  .then((result) => result.text)
+                              : Future.value(temperament),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return _buildInfoText(
+                            '${AppLocalizations.of(context).temperament}: Загрузка...',
+                            textAlign: TextAlign.justify,
+                          );
+                        } else if (snapshot.hasError) {
+                          return _buildInfoText(
+                            '${AppLocalizations.of(context).temperament}: $temperament',
+                            textAlign: TextAlign.justify,
+                          );
+                        } else {
+                          return _buildInfoText(
+                            '${AppLocalizations.of(context).temperament}: ${snapshot.data}',
+                            textAlign: TextAlign.justify,
+                          );
+                        }
+                      },
                     ),
-                    SizedBox(height: 10),
-                    _buildInfoText(
-                      'Описание: $description',
-                      textAlign: TextAlign.justify,
+                    FutureBuilder<String>(
+                      future:
+                          Localizations.localeOf(context).languageCode == 'ru'
+                              ? GoogleTranslator()
+                                  .translate(description, from: 'en', to: 'ru')
+                                  .then((result) => result.text)
+                              : Future.value(description),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return _buildInfoText(
+                            '${AppLocalizations.of(context).description}: Загрузка...',
+                            textAlign: TextAlign.justify,
+                          );
+                        } else if (snapshot.hasError) {
+                          return _buildInfoText(
+                            '${AppLocalizations.of(context).description}: $description',
+                            textAlign: TextAlign.justify,
+                          );
+                        } else {
+                          return _buildInfoText(
+                            '${AppLocalizations.of(context).description}: ${snapshot.data}',
+                            textAlign: TextAlign.justify,
+                          );
+                        }
+                      },
                     ),
                     SizedBox(height: 20),
                     Card(
@@ -112,28 +158,40 @@ class DetailsScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             _buildSectionTitle(
-                              'Дополнительные характеристики:',
+                              AppLocalizations.of(
+                                context,
+                              ).additionalCharacteristics,
                             ),
                             SizedBox(height: 10),
-                            _buildCharacteristic('Энергичность', energyLevel),
-                            _buildCharacteristic('Интеллект', intelligence),
                             _buildCharacteristic(
-                              'Дружелюбность к детям',
+                              AppLocalizations.of(context).energy,
+                              energyLevel,
+                            ),
+                            _buildCharacteristic(
+                              AppLocalizations.of(context).intelligence,
+                              intelligence,
+                            ),
+                            _buildCharacteristic(
+                              AppLocalizations.of(context).childFriendly,
                               childFriendly,
                             ),
                             _buildCharacteristic(
-                              'Дружелюбность к собакам',
+                              AppLocalizations.of(context).dogFriendly,
                               dogFriendly,
                             ),
                             _buildCharacteristic(
-                              'Уровень линьки',
+                              AppLocalizations.of(context).sheddingLevel,
                               sheddingLevel,
                             ),
                             SizedBox(height: 10),
                             _buildInfoText(
                               hypoallergenic
-                                  ? '✅ Гипоаллергенный'
-                                  : '❌ Не гипоаллергенный',
+                                  ? AppLocalizations.of(
+                                    context,
+                                  ).hypoallergenicYes
+                                  : AppLocalizations.of(
+                                    context,
+                                  ).hypoallergenicNo,
                               isBold: true,
                               textAlign: TextAlign.center,
                             ),

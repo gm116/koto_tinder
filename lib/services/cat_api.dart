@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:translator/translator.dart';
+// import 'package:translator/translator.dart';
 
 class CatApi {
   static const String _searchUrl =
@@ -26,34 +26,18 @@ class CatApi {
                   ? detailsData['breeds'][0]
                   : null;
 
-          final translator = GoogleTranslator();
-          var translatedBreedName = await translator.translate(
-            breed?['name'] ?? 'Unknown',
-            from: 'en',
-            to: 'ru',
-          );
-          var translatedOrigin = await translator.translate(
-            breed?['origin'] ?? 'Unknown',
-            from: 'en',
-            to: 'ru',
-          );
-          var translatedTemperament = await translator.translate(
-            breed?['temperament'] ?? 'Unknown',
-            from: 'en',
-            to: 'ru',
-          );
-          var translatedDescription = await translator.translate(
-            breed?['description'] ?? 'No description available',
-            from: 'en',
-            to: 'ru',
-          );
+          String translatedBreedName = breed?['name'] ?? 'Unknown';
+          String translatedOrigin = breed?['origin'] ?? 'Unknown';
+          String translatedTemperament = breed?['temperament'] ?? 'Unknown';
+          String translatedDescription =
+              breed?['description'] ?? 'No description available';
 
           return {
             'url': imageUrl,
-            'breedName': translatedBreedName.text,
-            'origin': translatedOrigin.text,
-            'temperament': translatedTemperament.text,
-            'description': translatedDescription.text,
+            'breedName': translatedBreedName,
+            'origin': translatedOrigin,
+            'temperament': translatedTemperament,
+            'description': translatedDescription,
             'lifeSpan': breed?['life_span'] ?? 'Неизвестно',
             'energyLevel': breed?['energy_level'] ?? 0,
             'intelligence': breed?['intelligence'] ?? 0,

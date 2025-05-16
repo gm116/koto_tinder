@@ -1,0 +1,21 @@
+{
+  "@@locale": "ru",
+  "appTitle": "Кототиндер",
+  "origin": "Происхождение",
+  "lifeSpan": "Продолжительность жизни",
+  "temperament": "Характер",
+  "description": "Описание",
+  "additionalCharacteristics": "Дополнительные характеристики:",
+  "energy": "Энергичность",
+  "intelligence": "Интеллект",
+  "childFriendly": "Дружелюбность к детям",
+  "dogFriendly": "Дружелюбность к собакам",
+  "sheddingLevel": "Уровень линьки",
+  "hypoallergenicYes": "✅ Гипоаллергенный",
+  "hypoallergenicNo": "❌ Не гипоаллергенный",
+  "like": "Лайк",
+  "dislike": "Дизлайк",
+  "likesCount": "Лайков: ",
+  "loading": "Загрузка...",
+  "errorLoadingCat": "Ошибка загрузки кота"
+}
