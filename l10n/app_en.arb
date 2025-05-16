@@ -17,5 +17,10 @@
   "dislike": "Dislike",
   "likesCount": "Likes: ",
   "loading": "Loading...",
-  "errorLoadingCat": "Error loading cat"
+  "errorLoadingCat": "Error loading cat",
+  "likedCatsTitle": "Liked cats",
+  "likedCatsNoCats": "No liked cats.",
+  "likedCatsDatePrefix": "Liked:",
+  "likedCatsBreedFilter": "Filter by breed",
+  "likedCatsAll": "All"
 }

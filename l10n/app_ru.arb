@@ -17,5 +17,10 @@
   "dislike": "Дизлайк",
   "likesCount": "Лайков: ",
   "loading": "Загрузка...",
-  "errorLoadingCat": "Ошибка загрузки кота"
+  "errorLoadingCat": "Ошибка загрузки кота",
+  "likedCatsTitle": "Лайкнутые котики",
+  "likedCatsNoCats": "Нет лайкнутых котиков.",
+  "likedCatsDatePrefix": "Лайк:",
+  "likedCatsBreedFilter": "Фильтр по породе",
+  "likedCatsAll": "Все"
 }
