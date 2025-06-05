@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:translator/translator.dart';
 import '../models/cat.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class DetailsScreen extends StatelessWidget {
   const DetailsScreen({super.key});
@@ -34,7 +35,15 @@ class DetailsScreen extends StatelessWidget {
                     fit: StackFit.expand,
                     children: [
                       cat.url.isNotEmpty
-                          ? Image.network(cat.url, fit: BoxFit.cover)
+                          ? CachedNetworkImage(
+                        imageUrl: cat.url,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => const Center(child: CircularProgressIndicator(strokeWidth: 3)),
+                        errorWidget: (context, url, error) => Container(
+                          color: Colors.grey,
+                          child: const Icon(Icons.broken_image, color: Colors.white, size: 48),
+                        ),
+                      )
                           : Container(color: Colors.grey),
                       Positioned(
                         bottom: 0,
@@ -244,7 +253,7 @@ class DetailsScreen extends StatelessWidget {
           Text(
             '$title: ',
             style: const TextStyle(
-              fontSize: 16,
+              fontSize: 14,
               fontWeight: FontWeight.bold,
               fontFamily: 'Montserrat',
             ),

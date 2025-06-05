@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'screens/home_screen.dart';
 import 'screens/details_screen.dart';
@@ -7,6 +8,8 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'di/di.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  CachedNetworkImage.evictFromCache('');
   initDI();
   runApp(const MyApp());
 }

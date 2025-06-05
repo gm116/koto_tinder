@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../models/cat.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -24,7 +25,22 @@ class CatCard extends StatelessWidget {
             height: 60,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Image.network(cat.url, fit: BoxFit.cover),
+              child: CachedNetworkImage(
+                imageUrl: cat.url,
+                fit: BoxFit.cover,
+                placeholder:
+                    (context, url) => const Center(
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                errorWidget:
+                    (context, url, error) => Container(
+                      color: Colors.grey,
+                      child: const Icon(
+                        Icons.broken_image,
+                        color: Colors.white,
+                      ),
+                    ),
+              ),
             ),
           ),
         ),

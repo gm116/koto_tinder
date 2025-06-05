@@ -6,7 +6,7 @@ class CatApi {
   static const String _searchUrl =
       'https://api.thecatapi.com/v1/images/search?has_breeds=1';
 
-  static Future<Map<String, dynamic>> fetchRandomCat() async {
+  Future<Map<String, dynamic>> fetchRandomCat() async {
     final searchResponse = await http.get(Uri.parse(_searchUrl));
     if (searchResponse.statusCode == 200) {
       List<dynamic> searchData = json.decode(searchResponse.body);

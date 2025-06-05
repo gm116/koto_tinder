@@ -22,5 +22,8 @@
   "likedCatsNoCats": "No liked cats.",
   "likedCatsDatePrefix": "Liked:",
   "likedCatsBreedFilter": "Filter by breed",
-  "likedCatsAll": "All"
+  "likedCatsAll": "All",
+  "online": "Back online",
+  "offline": "No internet connection",
+  "offlineMode": "Offline mode: data loaded from memory"
 }

@@ -22,5 +22,8 @@
   "likedCatsNoCats": "Нет лайкнутых котиков.",
   "likedCatsDatePrefix": "Лайк:",
   "likedCatsBreedFilter": "Фильтр по породе",
-  "likedCatsAll": "Все"
+  "likedCatsAll": "Все",
+  "online": "Интернет восстановлен",
+  "offline": "Нет соединения с интернетом",
+  "offlineMode": "Оффлайн режим: данные из памяти"
 }

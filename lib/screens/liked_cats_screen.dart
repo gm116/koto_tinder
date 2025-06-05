@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../cubit/liked_cats_cubit.dart';
 import '../di/di.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import '../widgets/animated_remove_cat_card.dart';
 
 class LikedCatsScreen extends StatelessWidget {
   const LikedCatsScreen({super.key});
@@ -35,18 +35,43 @@ class LikedCatsScreen extends StatelessWidget {
                     itemCount: cats.length,
                     itemBuilder: (context, index) {
                       final cat = cats[index];
-                      return AnimatedRemoveCatCard(
+                      return Dismissible(
                         key: ValueKey(cat.url),
-                        cat: cat,
-                        onRemove:
-                            () => context.read<LikedCatsCubit>().removeCat(cat),
-                        onTap: () {
-                          Navigator.pushNamed(
-                            context,
-                            '/details',
-                            arguments: cat,
-                          );
-                        },
+                        direction: DismissDirection.endToStart,
+                        onDismissed: (_) =>
+                            context.read<LikedCatsCubit>().removeCat(cat),
+                        background: Container(
+                          color: Colors.red,
+                          alignment: Alignment.centerRight,
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: const Icon(Icons.delete, color: Colors.white),
+                        ),
+                        child: ListTile(
+                          leading: cat.url.isNotEmpty
+                              ? CachedNetworkImage(
+                            imageUrl: cat.url,
+                            width: 56,
+                            height: 56,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) => const Center(
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                            errorWidget: (context, url, error) => Container(
+                              color: Colors.grey,
+                              child: const Icon(Icons.broken_image, color: Colors.white),
+                            ),
+                          )
+                              : null,
+                          title: Text(cat.breedName),
+                          subtitle: Text(cat.origin),
+                          onTap: () {
+                            Navigator.pushNamed(
+                              context,
+                              '/details',
+                              arguments: cat,
+                            );
+                          },
+                        ),
                       );
                     },
                   );
