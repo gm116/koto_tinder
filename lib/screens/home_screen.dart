@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
 import '../services/cat_api.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../cubit/liked_cats_cubit.dart';
+import '../models/cat.dart';
+import '../di/di.dart';
+import '../widgets/like_count_text.dart';
+import '../widgets/breed_text.dart';
+import '../widgets/like_dislike_buttons.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({super.key, required this.onLocaleChange});
+
+  final Function(Locale) onLocaleChange;
 
   @override
   HomeScreenState createState() => HomeScreenState();
@@ -50,9 +58,9 @@ class HomeScreenState extends State<HomeScreen> {
         setState(() {
           isLoading = false;
         });
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Ошибка загрузки кота')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context).errorLoadingCat)),
+        );
       }
     }
   }
@@ -61,6 +69,8 @@ class HomeScreenState extends State<HomeScreen> {
     setState(() {
       likeCount++;
       if (_catQueue.isNotEmpty) {
+        final cat = Cat.fromMap(_catQueue.first);
+        sl<LikedCatsCubit>().likeCat(cat);
         _catQueue.removeAt(0);
       }
     });
@@ -87,18 +97,39 @@ class HomeScreenState extends State<HomeScreen> {
         _catQueue.isNotEmpty ? _catQueue.first : null;
 
     String imageUrl = currentCat?['url'] ?? '';
-    String breedName = currentCat?['breedName'] ?? 'Загрузка...';
+    String breedName =
+        currentCat?['breedName'] ?? AppLocalizations.of(context).loading;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Кототиндер',
-          style: TextStyle(
+          AppLocalizations.of(context).appTitle,
+          style: const TextStyle(
             fontSize: 28,
             fontFamily: 'Montserrat',
             fontWeight: FontWeight.bold,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.favorite),
+            tooltip: "Liked Cats",
+            onPressed: () {
+              Navigator.pushNamed(context, '/liked');
+            },
+          ),
+          PopupMenuButton<Locale>(
+            onSelected: (locale) {
+              widget.onLocaleChange(locale);
+            },
+            itemBuilder:
+                (context) => const [
+                  PopupMenuItem(value: Locale('ru'), child: Text('🇷🇺RU')),
+                  PopupMenuItem(value: Locale('en'), child: Text('🇺🇸EN')),
+                ],
+            icon: const Icon(Icons.language),
+          ),
+        ],
       ),
       body: Center(
         child: Column(
@@ -125,13 +156,14 @@ class HomeScreenState extends State<HomeScreen> {
                     },
                     child: GestureDetector(
                       onTap:
-                          isLoading
+                          isLoading || currentCat == null
                               ? null
                               : () {
+                                final cat = Cat.fromMap(currentCat);
                                 Navigator.pushNamed(
                                   context,
                                   '/details',
-                                  arguments: currentCat,
+                                  arguments: cat,
                                 );
                               },
                       child: Container(
@@ -144,7 +176,7 @@ class HomeScreenState extends State<HomeScreen> {
                               color: Colors.black.withValues(alpha: 0.5),
                               spreadRadius: 2,
                               blurRadius: 10,
-                              offset: Offset(0, 5),
+                              offset: const Offset(0, 5),
                             ),
                           ],
                         ),
@@ -164,7 +196,7 @@ class HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   if (isLoading || currentCat == null)
-                    SizedBox(
+                    const SizedBox(
                       width: 400,
                       height: 500,
                       child: Center(
@@ -179,173 +211,16 @@ class HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-            SizedBox(height: 20),
-            _BreedText(breedName: breedName),
-            _LikeCountText(likeCount: likeCount),
-            SizedBox(height: 30),
+            const SizedBox(height: 20),
+            BreedText(breedName: breedName),
+            LikeCountText(likeCount: likeCount),
+            const SizedBox(height: 30),
             LikeDislikeButtons(
               onLike: _likeCat,
               onDislike: _dislikeCat,
               isLoading: isLoading,
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _BreedText extends StatelessWidget {
-  final String breedName;
-
-  const _BreedText({required this.breedName});
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      breedName,
-      style: TextStyle(
-        fontSize: 24,
-        fontWeight: FontWeight.bold,
-        fontFamily: 'Montserrat',
-      ),
-    );
-  }
-}
-
-class _LikeCountText extends StatelessWidget {
-  final int likeCount;
-
-  const _LikeCountText({required this.likeCount});
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      'Лайков: $likeCount',
-      style: TextStyle(fontSize: 18, fontFamily: 'Montserrat'),
-    );
-  }
-}
-
-class LikeDislikeButtons extends StatefulWidget {
-  final VoidCallback onLike;
-  final VoidCallback onDislike;
-  final bool isLoading;
-
-  const LikeDislikeButtons({
-    required this.onLike,
-    required this.onDislike,
-    required this.isLoading,
-    super.key,
-  });
-
-  @override
-  LikeDislikeButtonsState createState() => LikeDislikeButtonsState();
-}
-
-class LikeDislikeButtonsState extends State<LikeDislikeButtons>
-    with TickerProviderStateMixin {
-  late AnimationController _likeController;
-  late AnimationController _dislikeController;
-
-  @override
-  void initState() {
-    super.initState();
-    _likeController = _createController();
-    _dislikeController = _createController();
-  }
-
-  AnimationController _createController() {
-    return AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 100),
-      lowerBound: 0.9,
-      upperBound: 1.0,
-    )..value = 1.0;
-  }
-
-  @override
-  void dispose() {
-    _likeController.dispose();
-    _dislikeController.dispose();
-    super.dispose();
-  }
-
-  void _animateAndPerform(AnimationController controller, VoidCallback action) {
-    if (widget.isLoading) return;
-    controller.reverse().then((_) {
-      action();
-      controller.forward();
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _buildButton(
-          icon: FontAwesomeIcons.xmark,
-          color: Colors.red,
-          onTap: () => _animateAndPerform(_dislikeController, widget.onDislike),
-          controller: _dislikeController,
-        ),
-        SizedBox(width: 80),
-        _buildButton(
-          icon: FontAwesomeIcons.solidHeart,
-          color: Colors.green,
-          onTap: () => _animateAndPerform(_likeController, widget.onLike),
-          controller: _likeController,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildButton({
-    required IconData icon,
-    required Color color,
-    required VoidCallback onTap,
-    required AnimationController controller,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: ScaleTransition(
-        scale: controller,
-        child: Container(
-          width: 70,
-          height: 70,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.2),
-                blurRadius: 10,
-                spreadRadius: 2,
-                offset: Offset(0, 5),
-              ),
-            ],
-          ),
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors: [
-                        color.withValues(alpha: 0.15),
-                        color.withValues(alpha: 0.01),
-                      ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                    ),
-                  ),
-                ),
-              ),
-              Center(child: FaIcon(icon, color: color, size: 32)),
-            ],
-          ),
         ),
       ),
     );
